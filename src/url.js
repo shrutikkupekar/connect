@@ -2,70 +2,14 @@ const dongleIdRegex = /[a-f0-9]{16}/;
 const logIdRegex = /[a-f0-9-]{20}/;
 const numberRegex = /^\d+$/;
 
-export function getDongleID(pathname) {
-  let parts = pathname.split('/');
-  parts = parts.filter((m) => m.length);
-
-  if (!dongleIdRegex.test(parts[0])) {
-    return null;
-  }
-
-  return parts[0] || null;
-}
-
-export function getZoom(pathname) {
-  let parts = pathname.split('/');
-  parts = parts.filter((m) => m.length);
-  if (parts.length >= 3 && parts[0] !== 'auth') {
-    return {
-      start: Number(parts[1]),
-      end: Number(parts[2]),
-    };
-  }
-  return null;
-}
-
-export function getRouteId(pathname) {
-  let parts = pathname.split('/');
-  parts = parts.filter((m) => m.length);
-
-  if (parts.length >= 2 && logIdRegex.test(parts[1])) {
-    return parts[1];
-  }
-  return null;
-}
-
-export function getRouteZoom(pathname) {
-  const parts = pathname.split('/').filter(Boolean);
-  if (getRouteId(pathname) && parts.length >= 4) {
-    return {
-      start: Number(parts[2]) * 1000,
-      end: Number(parts[3]) * 1000,
-    };
-  }
-  return null;
-}
-
-export function getPrimeNav(pathname) {
-  let parts = pathname.split('/');
-  parts = parts.filter((m) => m.length);
-
-  if (parts.length === 2 && dongleIdRegex.test(parts[0]) && parts[1] === 'prime') {
-    return true;
-  }
-  return false;
-}
-
-export function getStreamNav(pathname) {
-  let parts = pathname.split('/');
-  parts = parts.filter((m) => m.length);
-
-  if (parts.length === 2 && dongleIdRegex.test(parts[0]) && parts[1] === 'stream') {
-    return true;
-  }
-  return false;
-}
-
+// The only place a url is read. Supported urls:
+//   /                                  drive list
+//   /:dongleId                         drive list of a device
+//   /:dongleId/prime                   prime
+//   /:dongleId/stream                  live stream
+//   /:dongleId/:routeId                a drive
+//   /:dongleId/:routeId/:start/:end    a slice of a drive, in seconds
+//   /:dongleId/:start/:end             old-style drive link, in milliseconds
 export function parseUrl(pathname) {
   const route = {
     dongleId: null,
@@ -81,7 +25,7 @@ export function parseUrl(pathname) {
   if (!dongleIdRegex.test(dongleId)) {
     return route;
   }
-    route.dongleId = dongleId;
+  route.dongleId = dongleId;
 
   if (page === 'prime' && start === undefined) {
     route.prime = true;
