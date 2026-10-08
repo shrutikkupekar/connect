@@ -1,7 +1,7 @@
 // basic helper functions for controlling playback
 // we shouldn't want to edit the raw state most of the time, helper functions are better
 import * as Types from '../actions/types';
-import { currentOffset } from '.';
+import { currentOffset, videoOffset } from '.';
 
 export function reducer(_state, action) {
   let state = { ..._state };
@@ -85,8 +85,8 @@ export function reducer(_state, action) {
     }
   }
 
-  // normalize over loop
-  if (state.offset !== null && state.loop?.startTime) {
+  // normalize over loop, unless the video is the clock (it loops itself)
+  if (state.offset !== null && state.loop?.startTime && videoOffset() === null) {
     const playSpeed = state.isBufferingVideo ? 0 : state.desiredPlaySpeed;
     const offset = state.offset + (Date.now() - state.startTime) * playSpeed;
     loopOffset = state.loop.startTime;
